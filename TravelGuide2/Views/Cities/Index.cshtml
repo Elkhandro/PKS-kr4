@@ -1,0 +1,59 @@
+@model IEnumerable<City>
+@{
+    ViewData["Title"] = "Города";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<div class="page-header">
+    <h1>🌍 Туристический путеводитель</h1>
+    <p class="subtitle">Откройте для себя красивейшие города России</p>
+</div>
+
+<form method="get" class="search-form">
+    <input type="text" name="search" value="@search" placeholder="Поиск по названию города..." class="search-input"/>
+    <button type="submit" class="btn btn-primary">Найти</button>
+    @if (!string.IsNullOrEmpty(search))
+    {
+        <a href="/Cities" class="btn btn-secondary">Сбросить</a>
+    }
+</form>
+
+@if (!string.IsNullOrEmpty(search))
+{
+    <p class="search-info">Результаты поиска по запросу: <strong>@search</strong> — найдено городов: @Model.Count()</p>
+}
+
+<div class="cities-grid">
+    @foreach (var city in Model)
+    {
+        <div class="city-card">
+            <div class="city-card-img-wrap">
+                @if (!string.IsNullOrEmpty(city.PhotoUrl))
+                {
+                    <img src="@city.PhotoUrl" alt="@city.Name" class="city-card-img" onerror="this.src='/images/no-photo.png'"/>
+                }
+                else
+                {
+                    <div class="city-card-no-img">📷</div>
+                }
+            </div>
+            <div class="city-card-body">
+                <h2 class="city-card-title">@city.Name</h2>
+                <div class="city-card-meta">
+                    <span>📍 @city.Region</span>
+                    <span>👥 @city.Population.ToString("N0") чел.</span>
+                    <span>🏛 Достопримечательностей: @city.Attractions.Count</span>
+                </div>
+                <p class="city-card-desc">@city.ShortDescription</p>
+                <a href="/Cities/Details/@city.Id" class="btn btn-primary">Подробнее</a>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <p>По запросу «@search» ничего не найдено.</p>
+    </div>
+}

@@ -1,0 +1,97 @@
+@model City
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="breadcrumb">
+    <a href="/Cities">← Все города</a>
+</div>
+
+<div class="city-detail">
+    <div class="city-detail-header">
+        <div class="city-detail-img-wrap">
+            @if (!string.IsNullOrEmpty(Model.PhotoUrl))
+            {
+                <img src="@Model.PhotoUrl" alt="@Model.Name" class="city-detail-img"/>
+            }
+        </div>
+        <div class="city-detail-info">
+            <div class="city-detail-title-row">
+                @if (!string.IsNullOrEmpty(Model.CoatOfArmsUrl))
+                {
+                    <img src="@Model.CoatOfArmsUrl" alt="Герб @Model.Name" class="coat-of-arms"/>
+                }
+                <h1>@Model.Name</h1>
+            </div>
+            <table class="info-table">
+                <tr>
+                    <th>Регион</th>
+                    <td>@Model.Region</td>
+                </tr>
+                <tr>
+                    <th>Население</th>
+                    <td>@Model.Population.ToString("N0") человек</td>
+                </tr>
+                <tr>
+                    <th>Достопримечательности</th>
+                    <td>@Model.Attractions.Count</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.History))
+    {
+        <section class="section">
+            <h2>История</h2>
+            <p class="history-text">@Model.History</p>
+        </section>
+    }
+
+    <section class="section">
+        <h2>Достопримечательности</h2>
+        @if (Model.Attractions.Any())
+        {
+            <div class="attractions-grid">
+                @foreach (var a in Model.Attractions)
+                {
+                    <div class="attraction-card">
+                        <div class="attraction-card-img-wrap">
+                            @if (!string.IsNullOrEmpty(a.PhotoUrl))
+                            {
+                                <img src="@a.PhotoUrl" alt="@a.Name" class="attraction-card-img"/>
+                            }
+                            else
+                            {
+                                <div class="attraction-card-no-img">🏛</div>
+                            }
+                        </div>
+                        <div class="attraction-card-body">
+                            <h3>@a.Name</h3>
+                            <p>@a.ShortDescription</p>
+                            <div class="attraction-card-meta">
+                                @if (!string.IsNullOrEmpty(a.WorkingHours))
+                                {
+                                    <span>🕐 @a.WorkingHours</span>
+                                }
+                                @if (a.TicketPrice.HasValue)
+                                {
+                                    <span>💳 @a.TicketPrice ₽</span>
+                                }
+                                else
+                                {
+                                    <span>💳 Вход свободный</span>
+                                }
+                            </div>
+                            <a href="/Attractions/Details/@a.Id" class="btn btn-outline">Подробнее</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>Достопримечательности пока не добавлены.</p>
+        }
+    </section>
+</div>
