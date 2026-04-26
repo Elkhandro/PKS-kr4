@@ -1,0 +1,69 @@
+@model Attraction
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+<div class="breadcrumb">
+    <a href="/Cities">Города</a> →
+    <a href="/Cities/Details/@Model.CityId">@Model.City?.Name</a> →
+    @Model.Name
+</div>
+
+<div class="attraction-detail">
+    <h1>@Model.Name</h1>
+
+    @if (!string.IsNullOrEmpty(Model.PhotoUrl))
+    {
+        <div class="attraction-detail-img-wrap">
+            <img src="@Model.PhotoUrl" alt="@Model.Name" class="attraction-detail-img"/>
+        </div>
+    }
+
+    <div class="attraction-detail-meta">
+        <div class="meta-card">
+            <span class="meta-icon">📍</span>
+            <div>
+                <div class="meta-label">Город</div>
+                <div class="meta-value">@Model.City?.Name</div>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(Model.WorkingHours))
+        {
+            <div class="meta-card">
+                <span class="meta-icon">🕐</span>
+                <div>
+                    <div class="meta-label">Часы работы</div>
+                    <div class="meta-value">@Model.WorkingHours</div>
+                </div>
+            </div>
+        }
+        <div class="meta-card">
+            <span class="meta-icon">💳</span>
+            <div>
+                <div class="meta-label">Стоимость посещения</div>
+                <div class="meta-value">
+                    @if (Model.TicketPrice.HasValue)
+                    {
+                        @($"{Model.TicketPrice} ₽")
+                    }
+                    else
+                    {
+                        <text>Вход свободный</text>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.History))
+    {
+        <section class="section">
+            <h2>История и описание</h2>
+            <p class="history-text">@Model.History</p>
+        </section>
+    }
+
+    <div class="back-link">
+        <a href="/Cities/Details/@Model.CityId" class="btn btn-secondary">← Вернуться к городу @Model.City?.Name</a>
+    </div>
+</div>

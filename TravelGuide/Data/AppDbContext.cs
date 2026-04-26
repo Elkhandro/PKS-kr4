@@ -1,0 +1,152 @@
+using Microsoft.EntityFrameworkCore;
+using TravelGuide.Models;
+
+namespace TravelGuide.Data;
+
+public class AppDbContext : DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+    public DbSet<City> Cities { get; set; }
+    public DbSet<Attraction> Attractions { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<City>(e =>
+        {
+            e.HasKey(c => c.Id);
+            e.Property(c => c.Name).IsRequired().HasMaxLength(200);
+            e.Property(c => c.Region).IsRequired().HasMaxLength(200);
+            e.Property(c => c.ShortDescription).HasMaxLength(500);
+            e.Property(c => c.PhotoUrl).HasMaxLength(500);
+            e.Property(c => c.CoatOfArmsUrl).HasMaxLength(500);
+        });
+
+        modelBuilder.Entity<Attraction>(e =>
+        {
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Name).IsRequired().HasMaxLength(200);
+            e.Property(a => a.ShortDescription).HasMaxLength(500);
+            e.Property(a => a.PhotoUrl).HasMaxLength(500);
+            e.Property(a => a.WorkingHours).HasMaxLength(100);
+
+            e.HasOne(a => a.City)
+             .WithMany(c => c.Attractions)
+             .HasForeignKey(a => a.CityId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Seed данные
+        modelBuilder.Entity<City>().HasData(
+            new City
+            {
+                Id = 1,
+                Name = "Москва",
+                Region = "Центральный федеральный округ",
+                Population = 12_600_000,
+                ShortDescription = "Столица и крупнейший город России.",
+                History = "Москва была основана в 1147 году князем Юрием Долгоруким. За свою историю город пережил монгольское нашествие, польскую интервенцию и наполеоновское нашествие, каждый раз возрождаясь и становясь сильнее. Сегодня это крупнейший мегаполис Европы и политический, экономический и культурный центр России.",
+                PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Moscow_July_2011-16.jpg/1280px-Moscow_July_2011-16.jpg",
+                CoatOfArmsUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Coat_of_Arms_of_Moscow.svg/600px-Coat_of_Arms_of_Moscow.svg.png"
+            },
+            new City
+            {
+                Id = 2,
+                Name = "Санкт-Петербург",
+                Region = "Северо-Западный федеральный округ",
+                Population = 5_600_000,
+                ShortDescription = "Культурная столица России на берегах Невы.",
+                History = "Санкт-Петербург основан Петром I в 1703 году и был столицей Российской империи более двухсот лет. Город строился по образцу европейских столиц и стал символом реформ и открытости России миру. Известен белыми ночами, разводными мостами и богатейшим художественным наследием.",
+                PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Palace_Square_SPB_01.jpg/1280px-Palace_Square_SPB_01.jpg",
+                CoatOfArmsUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Coat_of_arms_of_Saint_Petersburg_%282003%29.svg/600px-Coat_of_arms_of_Saint_Petersburg_%282003%29.svg.png"
+            },
+            new City
+            {
+                Id = 3,
+                Name = "Казань",
+                Region = "Приволжский федеральный округ",
+                Population = 1_300_000,
+                ShortDescription = "Столица Татарстана — место слияния двух культур.",
+                History = "Казань — один из крупнейших городов России, основанный в XIII веке. Расположена на слиянии Волги и Казанки. Город прошёл через период Казанского ханства, завоевание Иваном Грозным в 1552 году и стал центром татарской культуры в составе России. Сегодня известен как «третья столица» страны.",
+                PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Kazan_Kremlin_from_Kazanka_River.jpg/1280px-Kazan_Kremlin_from_Kazanka_River.jpg",
+                CoatOfArmsUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Coat_of_Arms_of_Kazan.svg/600px-Coat_of_Arms_of_Kazan.svg.png"
+            }
+        );
+
+        modelBuilder.Entity<Attraction>().HasData(
+            // Москва
+            new Attraction
+            {
+                Id = 1, CityId = 1,
+                Name = "Красная площадь",
+                ShortDescription = "Главная площадь страны, сердце Москвы.",
+                History = "Красная площадь возникла в конце XV века. Здесь проходили торги, объявлялись царские указы и совершались казни. Сегодня площадь — главная туристическая достопримечательность России, объект Всемирного наследия ЮНЕСКО.",
+                PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/RedSquare_SaintBasile.jpg/1280px-RedSquare_SaintBasile.jpg",
+                WorkingHours = "Открыта круглосуточно",
+                TicketPrice = null
+            },
+            new Attraction
+            {
+                Id = 2, CityId = 1,
+                Name = "Третьяковская галерея",
+                ShortDescription = "Крупнейшее собрание русского изобразительного искусства.",
+                History = "Основана купцом Павлом Третьяковым в 1856 году. Сегодня хранит более 180 000 экспонатов, охватывающих тысячелетнюю историю русского искусства — от древних икон до авангарда XX века.",
+                PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/GTG-main-facade.jpg/1280px-GTG-main-facade.jpg",
+                WorkingHours = "Вт–Вс: 10:00–18:00 (Чт, Пт до 21:00)",
+                TicketPrice = 600
+            },
+            new Attraction
+            {
+                Id = 3, CityId = 1,
+                Name = "Московский Кремль",
+                ShortDescription = "Древняя крепость — резиденция Президента России.",
+                History = "Первые укрепления на месте Кремля появились в XII веке. Современные стены из красного кирпича возведены в конце XV века итальянскими архитекторами. На территории расположены соборы, дворцы, музеи и Оружейная палата.",
+                PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Kremlin_27.06.2013.jpg/1280px-Kremlin_27.06.2013.jpg",
+                WorkingHours = "Пт–Ср: 10:00–17:00",
+                TicketPrice = 700
+            },
+            // Санкт-Петербург
+            new Attraction
+            {
+                Id = 4, CityId = 2,
+                Name = "Эрмитаж",
+                ShortDescription = "Один из крупнейших художественных музеев мира.",
+                History = "Основан Екатериной II в 1764 году. Коллекция насчитывает более 3 миллионов экспонатов — картины, скульптуры, археологические находки из разных эпох и стран. Главное здание — Зимний дворец.",
+                PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Hermitage_Museum%2C_St._Petersburg_Russia.jpg/1280px-Hermitage_Museum%2C_St._Petersburg_Russia.jpg",
+                WorkingHours = "Вт, Чт, Сб, Вс: 10:30–18:00; Ср, Пт: 10:30–21:00",
+                TicketPrice = 500
+            },
+            new Attraction
+            {
+                Id = 5, CityId = 2,
+                Name = "Петергоф",
+                ShortDescription = "Дворцово-парковый ансамбль с каскадами фонтанов.",
+                History = "Заложен Петром I в начале XVIII века как летняя резиденция. Грандиозный Большой каскад с 64 фонтанами и позолоченными статуями открылся в 1723 году. Петергоф называют «русским Версалем».",
+                PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/PetergofGrandCascade.jpg/1280px-PetergofGrandCascade.jpg",
+                WorkingHours = "Парк: 09:00–20:00 (фонтаны: май–октябрь)",
+                TicketPrice = 450
+            },
+            // Казань
+            new Attraction
+            {
+                Id = 6, CityId = 3,
+                Name = "Казанский Кремль",
+                ShortDescription = "Средневековая крепость, объект ЮНЕСКО.",
+                History = "Основан в X–XI веках. После взятия Казани Иваном Грозным в 1552 году был перестроен русскими зодчими. На территории — мечеть Кул-Шариф, Благовещенский собор, Башня Сююмбике и президентский дворец.",
+                PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Kazan_Kremlin_-_panoramio_%281%29.jpg/1280px-Kazan_Kremlin_-_panoramio_%281%29.jpg",
+                WorkingHours = "Территория: 08:00–20:00 ежедневно",
+                TicketPrice = null
+            },
+            new Attraction
+            {
+                Id = 7, CityId = 3,
+                Name = "Мечеть Кул-Шариф",
+                ShortDescription = "Главная мечеть Татарстана, символ Казани.",
+                History = "Построена в 2005 году в память о мечети XVI века, разрушенной при взятии Казани. Вмещает до 1500 молящихся, минареты достигают 57 метров. Расположена на территории Казанского Кремля.",
+                PhotoUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Kul_Sharif_Mosque%2C_Kazan%2C_Russia.jpg/1280px-Kul_Sharif_Mosque%2C_Kazan%2C_Russia.jpg",
+                WorkingHours = "Ежедневно: 09:00–19:00",
+                TicketPrice = 200
+            }
+        );
+    }
+}
